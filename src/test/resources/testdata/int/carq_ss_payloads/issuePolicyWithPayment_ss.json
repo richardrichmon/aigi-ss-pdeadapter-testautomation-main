@@ -1,0 +1,13 @@
+{
+      "policyContext": {
+            "customer": "startsure",
+            "policy": {
+                  "policyEffectiveDate": "{{policyEffectiveDate}}",
+                  "policyId": "{{san}}",
+                  "policyNumber": "{{policyNumber}}",
+                  "lobCode": "IB",
+                  "insuredFormOfBusiness": "Other",
+                  "insuredFormOfBusinessName": "TEST DESCRIPTION"
+            }
+      }
+}

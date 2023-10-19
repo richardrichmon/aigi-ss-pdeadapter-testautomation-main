@@ -1,0 +1,6 @@
+{
+    "client_id": "PfosrNoq6ejM7DTzXPn0la4BZpNTzaQl",
+    "client_secret": "Cho_J8riC0-kuNR06gXPK-8ren0V1ION9tPRQsC-IrcuJUt7L1_QxKRhARHOEZcO",
+    "audience": "https://archintegrate-nonprod.archinsurance.com",
+    "grant_type": "client_credentials"
+}

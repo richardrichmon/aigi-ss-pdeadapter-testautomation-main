@@ -1,0 +1,53 @@
+name: Functional Automation CI
+on:
+  push:
+    branches:
+      - main
+      - feature/*
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *"
+jobs:
+  TestAutomation:
+    runs-on: Linux-prod
+    steps:
+      - name: FT Checkout
+        uses: actions/checkout@v3.2.0
+      - name: Read Project Properties
+        id: props
+        uses: falti/dotenv-action@v1.0.2
+        with:
+          path: .github/.env
+          log-variables: true
+      - name: Configure Workflow Environment
+        id: config
+        uses: ./configure-workflow #'schedule' added as a trigger
+        with:
+          team: ${{ steps.props.outputs.team }}
+          application-name: ${{ steps.props.outputs.application_name }}
+          docker-namespace: ${{ steps.props.outputs.docker_namespace }}
+          artifactory-username: ${{ secrets.AIGI_DIG_DS_ARTIFACTORY_USERNAME }}
+          artifactory-api-key: ${{ secrets.AIGI_DIG_DS_ARTIFACTORY_API_KEY }}
+          deployment-repo: ${{ steps.props.outputs.deployment_repo }}
+      - name: Setup Java
+        uses: actions/setup-java@v3.8.0
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+      - name: Configure Maven Environment
+        uses: archinsurance/aigi-ea-github-actions-library/configure-maven@v1.11.0
+        with:
+          repository-base: ${{ steps.config.outputs.artifactory-base }}
+          mirror-url: ${{ steps.config.outputs.maven-mirror-url }}
+          release-url: ${{ steps.config.outputs.maven-release-url }}
+          snapshot-url: ${{ steps.config.outputs.maven-snapshot-url }}
+          username: ${{ steps.config.outputs.artifactory-username }}
+          password: ${{ steps.config.outputs.artifactory-api-key }}
+      - name: FT Execution
+        run: |
+          echo "Starting Automation Test"
+          mvn -e --file pom.xml test

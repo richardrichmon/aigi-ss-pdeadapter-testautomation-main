@@ -1,0 +1,54 @@
+{
+  "policyContext": {
+    "customer": "startsure",
+    "policy": {
+      "policyEffectiveDate": "11/01/2023",
+      "taxSurchOvrdCd": "N",
+      "address": {
+        "insuredName": "STARTSURE {{stateCd}} RESTASSURED",
+        "insuredAddressStreetLine1Txt": "7 Park St",
+        "insuredAddressStreetLine2Txt": "",
+        "insuredAddressCityTxt": "Norwood",
+        "insuredAddressPostalCd": "13668",
+        "insuredAddressStateCd": "NY",
+        "locationList": [
+          {
+            "terrorismTierCd": "2",
+            "taxDist": null,
+            "coastalInd": "N",
+            "locationAddressStreetLine1": "7 Park St",
+            "locationAddressStreetLine2": null,
+            "city": "Norwood",
+            "state": "NY",
+            "zipCode": "13668",
+            "indivBceg": "N",
+            "locationCoverage": {
+              "bPPLimit": "90000"
+            }
+          }
+        ]
+      },
+      "forms": [
+        {
+          "formName": "AdditionalInsured",
+          "pageNumber": "1",
+          "fillinAttributes": {
+            "premisesDesignation": "TEST DESIGNATION",
+            "personOrOrganizationName": "TEST NAME",
+            "additionalPremium": "5000"
+          },
+          "tables": []
+        }
+      ],
+      "ibPolicy": {
+        "liabilityLimit": "300000",
+        "medExpAgLmt": "600000"
+      }
+    },
+    "referenceData": {
+      "classOfBusiness": {
+        "naicsCode": "221112"
+      }
+    }
+  }
+}

@@ -1,0 +1,151 @@
+name: Configure Workflow Environment
+description: Action to configure the workflow environment
+inputs:
+  team:
+    description: "Project team name"
+    required: true
+  application-name:
+    description: "Project application name"
+    required: true
+  docker-namespace:
+    description: "Project docker namespace"
+    required: true
+  artifactory-username:
+    description: "Artifactory username"
+    required: true
+  artifactory-api-key:
+    description: "Artifactory API key"
+    required: true
+  deployment-repo:
+    description: "Project GitOps deployment repository"
+    required: true
+outputs:
+  artifactory-base:
+    description: "Artifactory base URL"
+    value: ${{ steps.env.outputs.artifactory-base}}
+  artifactory-username:
+    description: "Artifactory username"
+    value: ${{ steps.env.outputs.artifactory-username}}
+  artifactory-api-key:
+    description: "Artifactory API key"
+    value: ${{ steps.env.outputs.artifactory-api-key }}
+  debian-repository-url:
+    description: "Debian repository URL"
+    value: ${{ steps.env.outputs.debian-repository-url }}
+  docker-snapshot-image-base:
+    description: "Docker snapshot image base name"
+    value: ${{ steps.env.outputs.docker-snapshot-image-base }}
+  docker-release-image-base:
+    description: "Docker release image base name"
+    value: ${{ steps.env.outputs.docker-release-image-base }}
+  docker-registry:
+    description: "Docker registry"
+    value: ${{ steps.env.outputs.docker-registry }}
+  docker-ref-tag:
+    description: "Docker git reference tag"
+    value: ${{ steps.env.outputs.docker-ref-tag }}
+  docker-sha-tag:
+    description: "Docker git SHA tag"
+    value: ${{ steps.env.outputs.docker-sha-tag }}
+  docker-build-tag:
+    description: "Docker CI build tag"
+    value: ${{ steps.env.outputs.docker-build-tag }}
+  helm-repository-url:
+    description: "Helm repository URL"
+    value: ${{ steps.env.outputs.helm-repository-url }}
+  maven-mirror-url:
+    description: "Maven mirror URL"
+    value: ${{ steps.env.outputs.maven-mirror-url }}
+  maven-snapshot-url:
+    description: "Maven snapshot repository URL"
+    value: ${{ steps.env.outputs.maven-snapshot-url }}
+  maven-release-url:
+    description: "Maven release repository URL"
+    value: ${{ steps.env.outputs.maven-release-url }}
+  npm-registry-url:
+    description: "Npm registry URL"
+    value: ${{ steps.env.outputs.npm-registry-url }}
+  npm-snapshot-url:
+    description: "Npm snapshot repository URL"
+    value: ${{ steps.env.outputs.npm-snapshot-url }}
+  npm-release-url:
+    description: "Npm release repository URL"
+    value: ${{ steps.env.outputs.npm-release-url }}
+  nuget-repository-url:
+    description: "NuGet repository URL"
+    value: ${{ steps.env.outputs.nuget-repository-url }}
+runs:
+  using: composite
+  steps:
+    - name: Configure Workflow Environment
+      id: env
+      shell: bash
+      env:
+        TEAM: ${{ inputs.team }}
+        APPLICATION_NAME: ${{ inputs.application-name }}
+        DOCKER_NAMESPACE: ${{ inputs.docker-namespace }}
+        ARTIFACTORY_USERNAME: ${{ inputs.artifactory-username }}
+        ARTIFACTORY_API_KEY: ${{ inputs.artifactory-api-key }}
+        DEPLOYMENT_REPO: ${{ inputs.deployment-repo }}
+      run: |
+        # Artifactory
+        ARTIFACTORY_BASE="archinsurance.jfrog.io"
+        ARTIFACTORY_BASE_URL="https://$ARTIFACTORY_BASE/artifactory"
+        echo "artifactory-base=$ARTIFACTORY_BASE" >> $GITHUB_OUTPUT
+        echo "artifactory-username=$ARTIFACTORY_USERNAME" >> $GITHUB_OUTPUT
+        echo "artifactory-api-key=$ARTIFACTORY_API_KEY" >> $GITHUB_OUTPUT
+
+        # Debian
+        echo "debian-repository-url=$ARTIFACTORY_BASE_URL/$TEAM-debian-dev" >> $GITHUB_OUTPUT
+
+        # Docker
+        echo "docker-snapshot-image-base=$ARTIFACTORY_BASE/$TEAM-docker-snapshot-local/$DOCKER_NAMESPACE/$APPLICATION_NAME" >> $GITHUB_OUTPUT
+        echo "docker-release-image-base=$ARTIFACTORY_BASE/$TEAM-docker-release-local/$DOCKER_NAMESPACE/$APPLICATION_NAME" >> $GITHUB_OUTPUT
+        echo "docker-registry=$ARTIFACTORY_BASE/$TEAM-docker-dev" >> $GITHUB_OUTPUT
+
+        # Helm
+        echo "helm-repository-url=$ARTIFACTORY_BASE_URL/$TEAM-helm-dev" >> $GITHUB_OUTPUT
+
+        # Maven
+        echo "maven-snapshot-url=$ARTIFACTORY_BASE_URL/$TEAM-maven-snapshot-local" >> $GITHUB_OUTPUT
+        echo "maven-release-url=$ARTIFACTORY_BASE_URL/$TEAM-maven-release-local" >> $GITHUB_OUTPUT
+        echo "maven-mirror-url=$ARTIFACTORY_BASE_URL/$TEAM-maven-dev" >> $GITHUB_OUTPUT
+
+        # NPM
+        echo "npm-snapshot-url=$ARTIFACTORY_BASE_URL/$TEAM-npm-snapshot-local" >> $GITHUB_OUTPUT
+        echo "npm-release-url=$ARTIFACTORY_BASE_URL/$TEAM-npm-release-local" >> $GITHUB_OUTPUT
+        echo "npm-registry-url=$ARTIFACTORY_BASE_URL/api/npm/$TEAM-npm-dev" >> $GITHUB_OUTPUT
+
+        # NuGet
+        echo "nuget-repository-url=$ARTIFACTORY_BASE_URL/$TEAM-nuget-dev" >> $GITHUB_OUTPUT
+
+        case $GITHUB_EVENT_NAME in
+        push | workflow_dispatch | schedule)
+            case $GITHUB_REF in
+            refs/tags/v*)
+                GIT_REF=${GITHUB_REF#refs/tags/v}
+                ;;
+            refs/heads/*)
+                GIT_REF=${GITHUB_REF#refs/heads/}
+                ;;
+            *)
+                echo "Unhandled GITHUB_REF=$GITHUB_REF, exiting"
+                exit 1
+                ;;
+            esac
+            ;;
+        pull_request)
+            GIT_REF=$GITHUB_BASE_REF
+            ;;
+        *)
+            echo "Unhandled GITHUB_EVENT_NAME=$GITHUB_EVENT_NAME, exiting"
+            exit 1
+            ;;
+        esac
+
+        DOCKER_REF_TAG="${GIT_REF//[\/]/-}"
+        echo "docker-ref-tag=$DOCKER_REF_TAG" >> $GITHUB_OUTPUT
+        DOCKER_SHA_TAG="${GITHUB_SHA:0:7}"
+        echo "docker-sha-tag=$DOCKER_SHA_TAG" >> $GITHUB_OUTPUT
+        DOCKER_BUILD_TAG="$DOCKER_REF_TAG-$DOCKER_SHA_TAG-$(date '+%Y%m%d')-$GITHUB_RUN_NUMBER"
+        echo "docker-build-tag=$DOCKER_BUILD_TAG" >> $GITHUB_OUTPUT

@@ -1,0 +1,8 @@
+{
+      "policyContext": {
+            "policy": {
+                  "productTypeCode": "PD",
+                  "policyId": "{{san}}"
+            }
+      }
+}
