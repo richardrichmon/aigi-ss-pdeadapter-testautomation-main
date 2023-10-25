@@ -1,1 +1,1 @@
-# aigi-ls-pricing-testautomation
+# aigi-ss-pdeadapter-testautomation
