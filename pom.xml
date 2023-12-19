@@ -10,7 +10,7 @@
 
     <properties>
         <java.version>11</java.version>
-        <maven.compiler.version>3.10.1</maven.compiler.version>
+        <maven.compiler.version>3.12.0</maven.compiler.version>
         <maven.surefire.version>3.0.0-M5</maven.surefire.version>
         <cucumber.version>7.2.3</cucumber.version>
         <apiSuiteFiles>testng-api-stage.xml</apiSuiteFiles>
